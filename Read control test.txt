@@ -1,0 +1,64 @@
+#
+#			made to test theory to test a change in start time when using trigger level
+#
+import matplotlib.pylab as plt
+import sys
+import pyvisa as visa
+import numpy as np
+import time 
+
+
+Resource = visa.ResourceManager()
+print(Resource.list_resources() ) 		
+PSU = Resource.open_resource('USB::0x0AAD::0x0197::5601.3800k03-112017::INSTR')
+osc = Resource.open_resource('USB0::0x0AAD::0x0119::104517::INSTR')
+
+print("\nPower Supply = ",Resource.open_resource('USB::0x0AAD::0x0197::5601.3800k03-112017::INSTR').query( "*IDN?" ))
+#print("Oscilloscope = ",Resource.open_resource('USB0::0x0AAD::0x0119::104517::INSTR').query( "*IDN?" ))
+
+PSU.write("INST OUT1")
+print("channel =",PSU.query("INST:SEL?"))
+
+if 0:
+            
+    print("Set channel output is =",PSU.write("OUTP 1"))
+    print("channel state ? =",PSU.query("OUTP?"))
+
+    incV = 0.2
+    acc = 0
+    
+    print("Setting to 0 = ",PSU.write('APPL "0,0"'))
+    #sys.exit(0)
+    for i in range(30):
+        
+        acc = acc + incV
+        APPLY=('APPL "'+ str(acc) +',0.1"')
+        PSU.write(APPLY)                                                                           # 'APPL "2 MIN1, 1"' requires the formate of "" around the values being sent this is currently unque
+        print("Reading =",PSU.query("APPL?"), "\nAPPL is = ", APPLY)                               #  APPL responeds in the same formate as it is requested in "" but in the manual this is not show 
+        time.sleep(0.5)
+        
+
+
+HEAD=osc.query('CHAN1:DATA:HEAD?') # Start time , stop time, number of samples, samples per interval 
+print(HEAD)
+HEAD=HEAD.split(",")
+data = osc.query('CHAN1:DATA?')	
+
+StartT=(HEAD[0].replace("E","*10^"))
+StopT=(HEAD[1].replace("E","*10^"))
+s1,s2 = HEAD[0].split('E', 1)
+StartT=float(s1)*10**(float(s2))
+
+print(s1,s2)
+print(StartT)
+sys.exit(0)
+SampleRate=HEAD[2]
+duration = len(data) / int(SampleRate)
+time = np.arange(0, duration, 1/int(SampleRate))
+print(SampleRate)
+plt.plot(time_segment, data_segment)
+txtVar = "Something Else"
+plt.plot(WaveForm, 'r', lw = 0.4, label = "Ch1")
+plt.legend( )
+plt.title( txtVar )
+plt.show()

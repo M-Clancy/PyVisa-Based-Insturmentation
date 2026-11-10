@@ -1,0 +1,29 @@
+
+#
+#	This origranne started on 2025-01-31 Vertical position control
+#
+
+
+import sys
+import pyvisa as visa
+
+Resource = visa.ResourceManager()
+print(Resource.list_resources() ) 		
+
+osc = Resource.open_resource('USB0::0x0AAD::0x0119::104517::INSTR') 
+
+print("Oscilloscope = ",Resource.open_resource('USB0::0x0AAD::0x0119::104517::INSTR').query( "*IDN?" ))
+
+if 0:
+	
+    print("Volt/DIV =",osc.write('CHAN2:SCAL 2E-0')) 
+    print("Volt/DIV query=",osc.query('CHAN2:SCAL?'))                                           #   time/div works on tek
+
+    print("time/div Roh =",osc.write('TIM:SCAL 5E-7'))                                          #   Time scale set
+    print("time/div Roh query =",osc.query('TIM:SCAL?'))  
+    print("CHANnel set =",osc.write('CHAN 2'))  
+    #print("CHANnel set ? =",osc.query('CHAN?')) 
+    print("tigger Roh =",osc.query('TRIG:A:LEV?'))                                              #   works to test Trigger level ALso requires ""
+    print("tigger Roh =",osc.write('TRIG:A:LEV1:VAL 0.5'))                                      #   Trigger Level Works
+
+    print("tigger Roh =",osc.query('TRIG:A:LEV?')) 

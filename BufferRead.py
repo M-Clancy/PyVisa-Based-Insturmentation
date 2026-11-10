@@ -1,0 +1,53 @@
+
+#
+#	This origranne started on 2025-01-29 system argumants for insterment identifaction
+#
+import matplotlib.pylab as plt
+import sys
+import pyvisa as visa
+
+Resource = visa.ResourceManager()
+print(Resource.list_resources() ) 		
+osc = Resource.open_resource('USB0::0x0699::0x0368::C021301::INSTR')
+txtVar = (print(Resource.open_resource('USB0::0x0699::0x0368::C021301::INSTR').query( "*IDN?" )))
+print("header off",osc.write('HEADER OFF')) 
+print("Set Data Source",osc.write("DATA:SOURCE CH1"))  
+print("Confirm Data Source",osc.query("DATA:SOURCE?"))
+Source=osc.query("DATA:SOURCE?")  
+print("sets the waveform data encoding method to MSB",osc.write("DATA:ENCDG RIBINARY"))   
+EncodingMethod = osc.query("DATA:ENCDG?")
+print("EncodingMethod = ",EncodingMethod)
+WaveFormPreamble = osc.query("WFMpre?")
+print("WaveFormPreamble = ",WaveFormPreamble)
+NumPoints = osc.query("WFMpre:NR_Pt?")
+print("NumPoints = ",NumPoints)
+#print("sending curve command",osc.write("CURVE?")) #? might try with this changed to query 
+#WaveForm=print("sending curve command",osc.read("")) #? might try with this changed to query 
+
+#0 read returning info through pyVISA
+#1 read turning data usinf rb (readbinary)
+#2 decode data usinf the int16 formate
+#3 plot on matplot
+
+#WaveFormorm=osc.read_bytes(1024) #
+#waveform=osc.read_binary_values('CURV?')#
+#waveform=osc.read_raw()													#couldn't assign datatype
+
+#CH1= osc.query_binary_values('CURV?', datatype='h')					#WORKS
+
+
+#print("Set Data Source",osc.write("DATA:SOURCE CH2"))  
+
+
+
+WaveForm = osc.query_binary_values('CURV?', datatype='h')					#WORKS
+
+print(WaveForm)
+
+plt.plot(WaveForm,'r', lw = 0.4, label = "Ch1")
+
+#plt.plot(CH2,'b', lw = 0.4, label = "Ch2")
+
+plt.legend( )
+plt.title( txtVar )
+plt.show()
